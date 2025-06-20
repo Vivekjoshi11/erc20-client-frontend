@@ -1,111 +1,110 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// import Image from "next/image";
+// /* eslint-disable @typescript-eslint/no-unused-vars */
+// /* eslint-disable react-hooks/exhaustive-deps */
+
+// // src/app/page.tsx
+// 'use client';
+
+// import { useEffect, useState } from 'react';
+// import { ethers } from 'ethers';
+// import { getContract } from './utils/contract';
 
 // export default function Home() {
-//   return (
-//     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-//       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-//         <Image
-//           className="dark:invert"
-//           src="/next.svg"
-//           alt="Next.js logo"
-//           width={180}
-//           height={38}
-//           priority
-//         />
-//         <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-//           <li className="mb-2 tracking-[-.01em]">
-//             Get started by editing{" "}
-//             <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-//               src/app/page.tsx
-//             </code>
-//             .
-//           </li>
-//           <li className="tracking-[-.01em]">
-//             Save and see your changes instantly.
-//           </li>
-//         </ol>
+//   const [account, setAccount] = useState<string>('');
+//   const [registeredUsers, setRegisteredUsers] = useState<string[]>([]);
+//   const [balance, setBalance] = useState<string>('0');
+//   const [loading, setLoading] = useState(false);
 
-//         <div className="flex gap-4 items-center flex-col sm:flex-row">
-//           <a
-//             className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-//             href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//             target="_blank"
-//             rel="noopener noreferrer"
-//           >
-//             <Image
-//               className="dark:invert"
-//               src="/vercel.svg"
-//               alt="Vercel logomark"
-//               width={20}
-//               height={20}
-//             />
-//             Deploy now
-//           </a>
-//           <a
-//             className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-//             href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//             target="_blank"
-//             rel="noopener noreferrer"
-//           >
-//             Read our docs
-//           </a>
+//   const connectWallet = async () => {
+//     if (typeof window !== 'undefined' && window.ethereum) {
+//       const provider = new ethers.BrowserProvider(window.ethereum);
+//       const accounts = await provider.send('eth_requestAccounts', []);
+//       setAccount(accounts[0]);
+//     } else {
+//       alert('MetaMask not detected');
+//     }
+//   };
+
+//   const registerUser = async () => {
+//     try {
+//       const contract = await getContract();
+//       const tx = await contract.registerUser();
+//       await tx.wait();
+//       alert('Registered successfully!');
+//     } catch (err) {
+//       console.error(err);
+//       alert('Registration failed');
+//     }
+//   };
+
+//   const mintTokens = async () => {
+//     try {
+//       const contract = await getContract();
+//       const amount = ethers.parseUnits('100', 18); // mint 100 tokens
+//       const tx = await contract.mintToSelf(amount);
+//       await tx.wait();
+//       alert('Minted 100 tokens!');
+//     } catch (err) {
+//       console.error(err);
+//       alert('Minting failed');
+//     }
+//   };
+
+//   const fetchBalance = async () => {
+//     try {
+//       const contract = await getContract();
+//       const result = await contract.getUserBalance(account);
+//       setBalance(ethers.formatUnits(result, 18));
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+
+//   const fetchUsers = async () => {
+//     try {
+//       const contract = await getContract();
+//       const users = await contract.getAllRegisteredUsers();
+//       setRegisteredUsers(users);
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (account) {
+//       fetchBalance();
+//       fetchUsers();
+//     }
+//   }, [account]);
+
+//   return (
+//     <main className="p-6 font-mono">
+//       <h1 className="text-xl font-bold mb-4">🚀 Client Token App</h1>
+
+//       {!account ? (
+//         <button onClick={connectWallet} className="bg-blue-500 px-4 py-2 rounded text-white">Connect Wallet</button>
+//       ) : (
+//         <div className="space-y-4">
+//           <p>Connected as: <span className="font-semibold">{account}</span></p>
+//           <p>Your Balance: <span className="text-green-600">{balance} CTK</span></p>
+
+//           <button onClick={registerUser} className="bg-yellow-500 px-4 py-2 rounded text-black">Register</button>
+//           <button onClick={mintTokens} className="bg-green-600 px-4 py-2 rounded text-white">Mint 100 Tokens</button>
+
+//           <h2 className="text-lg font-bold mt-6">👥 Registered Users</h2>
+//           <ul className="list-disc ml-6">
+//             {registeredUsers.map((user, idx) => (
+//               <li key={idx}>{user}</li>
+//             ))}
+//           </ul>
 //         </div>
-//       </main>
-//       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-//         <a
-//           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-//           href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           <Image
-//             aria-hidden
-//             src="/file.svg"
-//             alt="File icon"
-//             width={16}
-//             height={16}
-//           />
-//           Learn
-//         </a>
-//         <a
-//           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-//           href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           <Image
-//             aria-hidden
-//             src="/window.svg"
-//             alt="Window icon"
-//             width={16}
-//             height={16}
-//           />
-//           Examples
-//         </a>
-//         <a
-//           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-//           href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           <Image
-//             aria-hidden
-//             src="/globe.svg"
-//             alt="Globe icon"
-//             width={16}
-//             height={16}
-//           />
-//           Go to nextjs.org →
-//         </a>
-//       </footer>
-//     </div>
+//       )}
+//     </main>
 //   );
 // }
 
-
-
+// src/app/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -113,44 +112,101 @@ import { ethers } from "ethers";
 import { getContract } from "./utils/contract";
 
 export default function Home() {
-  const [account, setAccount] = useState("");
-  const [balance, setBalance] = useState("0");
-  const [users, setUsers] = useState<string[]>([]);
+  const [account, setAccount] = useState<string>("");
+  const [registeredUsers, setRegisteredUsers] = useState<string[]>([]);
+  const [balance, setBalance] = useState<string>("0");
+  const [transferTo, setTransferTo] = useState<string>("");
+  const [transferAmount, setTransferAmount] = useState<string>("");
 
   const connectWallet = async () => {
-    if (!(window as any).ethereum) return alert("Install MetaMask");
-    const accounts = await (window as any).ethereum.request({
-      method: "eth_requestAccounts",
-    });
-    setAccount(accounts[0]);
+    if (typeof window !== "undefined" && window.ethereum) {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const accounts = await provider.send("eth_requestAccounts", []);
+      setAccount(accounts[0]);
+    } else {
+      alert("MetaMask not detected");
+    }
   };
 
   const registerUser = async () => {
-    const contract = await getContract();
-    const tx = await contract.registerUser(account);
-    await tx.wait();
-    alert("User registered!");
-    fetchUsers();
+    try {
+      const contract = await getContract();
+      const tx = await contract.registerUser();
+      await tx.wait();
+      alert("Registered successfully!");
+      fetchUsers();
+    } catch (err) {
+      console.error(err);
+      alert("Registration failed");
+    }
   };
 
   const mintTokens = async () => {
-    const contract = await getContract();
-    const tx = await contract.mintToUser(account, ethers.utils.parseEther("100"));
-    await tx.wait();
-    alert("Minted 100 CTK!");
-    fetchBalance();
+    try {
+      const contract = await getContract();
+      const amount = ethers.parseUnits("100", 18);
+      const tx = await contract.mintToUser(account, amount);
+      await tx.wait();
+      alert("Minted 100 tokens!");
+      fetchBalance();
+    } catch (err) {
+      console.error(err);
+      alert("Minting failed");
+    }
   };
 
   const fetchBalance = async () => {
-    const contract = await getContract();
-    const bal = await contract.getUserBalance(account);
-    setBalance(ethers.utils.formatEther(bal));
+    try {
+      const contract = await getContract();
+      const result = await contract.getUserBalance(account);
+      setBalance(ethers.formatUnits(result, 18));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const fetchUsers = async () => {
-    const contract = await getContract();
-    const all = await contract.getAllRegisteredUsers();
-    setUsers(all);
+    try {
+      const contract = await getContract();
+      const users = await contract.getAllRegisteredUsers();
+      setRegisteredUsers(users);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const transferTokens = async () => {
+    try {
+      const contract = await getContract();
+      const amount = ethers.parseUnits(transferAmount, 18);
+      const tx = await contract.transfer(transferTo, amount);
+      await tx.wait();
+      alert("Transfer successful");
+      fetchBalance();
+    } catch (err) {
+      console.error(err);
+      alert("Transfer failed");
+    }
+  };
+  const addTokenToMetaMask = async () => {
+    try {
+      if (window.ethereum) {
+        await window.ethereum.request({
+          method: "wallet_watchAsset",
+          params: {
+            type: "ERC20",
+            options: {
+              address: "0xe0F577E91dfdF582a007fc7b4ea4D176EA667125", // your token address
+              symbol: "CTK",
+              decimals: 18,
+              image: "https://cryptologos.cc/logos/ethereum-eth-logo.png", // optional
+            },
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Failed to add token to MetaMask:", error);
+    }
   };
 
   useEffect(() => {
@@ -161,41 +217,79 @@ export default function Home() {
   }, [account]);
 
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold mb-4">ClientToken Dashboard</h1>
+    <main className="p-6 font-mono bg-gray-900 min-h-screen text-white">
+      <h1 className="text-xl font-bold mb-4">🚀 Client Token Dashboard</h1>
 
       {!account ? (
         <button
           onClick={connectWallet}
-          className="bg-blue-600 text-white p-2 rounded"
+          className="bg-blue-600 px-4 py-2 rounded text-white"
         >
           Connect Wallet
         </button>
       ) : (
-        <>
-          <p className="mb-2">Connected: {account}</p>
-          <p className="mb-4">Balance: {balance} CTK</p>
+        <div className="space-y-4">
+          <p>
+            Connected as: <span className="font-semibold">{account}</span>
+          </p>
+          <p>
+            Your Balance: <span className="text-green-400">{balance} CTK</span>
+          </p>
 
-          <button
-            onClick={registerUser}
-            className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
-          >
-            Register Me
-          </button>
-          <button
-            onClick={mintTokens}
-            className="bg-green-600 text-white px-4 py-2 rounded"
-          >
-            Mint 100 CTK
-          </button>
+          <div className="space-x-2">
+            <button
+              onClick={registerUser}
+              className="bg-yellow-500 px-4 py-2 rounded text-black"
+            >
+              Register
+            </button>
+            <button
+              onClick={mintTokens}
+              className="bg-green-600 px-4 py-2 rounded text-white"
+            >
+              Mint 100 Tokens
+            </button>
+            <button
+              onClick={addTokenToMetaMask}
+              className="bg-indigo-600 px-4 py-2 rounded text-white"
+            >
+              Add CTK to MetaMask
+            </button>
+          </div>  
 
-          <h2 className="text-xl mt-6 mb-2 font-semibold">Registered Users:</h2>
-          <ul className="list-disc list-inside">
-            {users.map((user, i) => (
-              <li key={i}>{user}</li>
-            ))}
-          </ul>
-        </>
+          <div className="mt-6">
+            <h2 className="text-lg font-bold mb-2">💸 Transfer Tokens</h2>
+            <input
+              type="text"
+              placeholder="Recipient address"
+              value={transferTo}
+              onChange={(e) => setTransferTo(e.target.value)}
+              className="p-2 rounded bg-gray-800 text-white mr-2"
+            />
+            <input
+              type="text"
+              placeholder="Amount"
+              value={transferAmount}
+              onChange={(e) => setTransferAmount(e.target.value)}
+              className="p-2 rounded bg-gray-800 text-white mr-2"
+            />
+            <button
+              onClick={transferTokens}
+              className="bg-purple-500 px-4 py-2 rounded text-white"
+            >
+              Transfer
+            </button>
+          </div>
+
+          <div className="mt-6">
+            <h2 className="text-lg font-bold">👥 Registered Users</h2>
+            <ul className="list-disc ml-6">
+              {registeredUsers.map((user, idx) => (
+                <li key={idx}>{user}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
       )}
     </main>
   );
