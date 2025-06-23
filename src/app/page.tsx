@@ -1,122 +1,24 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-// /* eslint-disable @typescript-eslint/no-unused-vars */
-// /* eslint-disable react-hooks/exhaustive-deps */
 
-// // src/app/page.tsx
-// 'use client';
-
-// import { useEffect, useState } from 'react';
-// import { ethers } from 'ethers';
-// import { getContract } from './utils/contract';
-
-// export default function Home() {
-//   const [account, setAccount] = useState<string>('');
-//   const [registeredUsers, setRegisteredUsers] = useState<string[]>([]);
-//   const [balance, setBalance] = useState<string>('0');
-//   const [loading, setLoading] = useState(false);
-
-//   const connectWallet = async () => {
-//     if (typeof window !== 'undefined' && window.ethereum) {
-//       const provider = new ethers.BrowserProvider(window.ethereum);
-//       const accounts = await provider.send('eth_requestAccounts', []);
-//       setAccount(accounts[0]);
-//     } else {
-//       alert('MetaMask not detected');
-//     }
-//   };
-
-//   const registerUser = async () => {
-//     try {
-//       const contract = await getContract();
-//       const tx = await contract.registerUser();
-//       await tx.wait();
-//       alert('Registered successfully!');
-//     } catch (err) {
-//       console.error(err);
-//       alert('Registration failed');
-//     }
-//   };
-
-//   const mintTokens = async () => {
-//     try {
-//       const contract = await getContract();
-//       const amount = ethers.parseUnits('100', 18); // mint 100 tokens
-//       const tx = await contract.mintToSelf(amount);
-//       await tx.wait();
-//       alert('Minted 100 tokens!');
-//     } catch (err) {
-//       console.error(err);
-//       alert('Minting failed');
-//     }
-//   };
-
-//   const fetchBalance = async () => {
-//     try {
-//       const contract = await getContract();
-//       const result = await contract.getUserBalance(account);
-//       setBalance(ethers.formatUnits(result, 18));
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
-
-//   const fetchUsers = async () => {
-//     try {
-//       const contract = await getContract();
-//       const users = await contract.getAllRegisteredUsers();
-//       setRegisteredUsers(users);
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (account) {
-//       fetchBalance();
-//       fetchUsers();
-//     }
-//   }, [account]);
-
-//   return (
-//     <main className="p-6 font-mono">
-//       <h1 className="text-xl font-bold mb-4">🚀 Client Token App</h1>
-
-//       {!account ? (
-//         <button onClick={connectWallet} className="bg-blue-500 px-4 py-2 rounded text-white">Connect Wallet</button>
-//       ) : (
-//         <div className="space-y-4">
-//           <p>Connected as: <span className="font-semibold">{account}</span></p>
-//           <p>Your Balance: <span className="text-green-600">{balance} CTK</span></p>
-
-//           <button onClick={registerUser} className="bg-yellow-500 px-4 py-2 rounded text-black">Register</button>
-//           <button onClick={mintTokens} className="bg-green-600 px-4 py-2 rounded text-white">Mint 100 Tokens</button>
-
-//           <h2 className="text-lg font-bold mt-6">👥 Registered Users</h2>
-//           <ul className="list-disc ml-6">
-//             {registeredUsers.map((user, idx) => (
-//               <li key={idx}>{user}</li>
-//             ))}
-//           </ul>
-//         </div>
-//       )}
-//     </main>
-//   );
-// }
-
-// src/app/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { getContract } from "./utils/contract";
 
+// Interface for registered users to store address and balance
+interface RegisteredUser {
+  address: string;
+  balance: string;
+}
+
 export default function Home() {
   const [account, setAccount] = useState<string>("");
-  const [registeredUsers, setRegisteredUsers] = useState<string[]>([]);
+  const [registeredUsers, setRegisteredUsers] = useState<RegisteredUser[]>([]);
   const [balance, setBalance] = useState<string>("0");
   const [transferTo, setTransferTo] = useState<string>("");
   const [transferAmount, setTransferAmount] = useState<string>("");
+  const [totalMinted, setTotalMinted] = useState<string>("0"); // New state for total minted tokens
 
   const connectWallet = async () => {
     if (typeof window !== "undefined" && window.ethereum) {
@@ -144,11 +46,12 @@ export default function Home() {
   const mintTokens = async () => {
     try {
       const contract = await getContract();
-      const amount = ethers.parseUnits("100", 18);
-      const tx = await contract.mintToUser(account, amount);
+      const amount = ethers.parseUnits("100", 18); // Mint 100 tokens
+      const tx = await contract.mintToSelf(amount);
       await tx.wait();
       alert("Minted 100 tokens!");
       fetchBalance();
+      fetchTotalSupply(); // Update total supply after minting
     } catch (err) {
       console.error(err);
       alert("Minting failed");
@@ -168,8 +71,28 @@ export default function Home() {
   const fetchUsers = async () => {
     try {
       const contract = await getContract();
-      const users = await contract.getAllRegisteredUsers();
-      setRegisteredUsers(users);
+      const addresses: string[] = await contract.getAllRegisteredUsers();
+      // Fetch balance for each user
+      const detailedUsers: RegisteredUser[] = await Promise.all(
+        addresses.map(async (addr: string) => {
+          const userBalance = await contract.getUserBalance(addr);
+          return {
+            address: addr,
+            balance: ethers.formatUnits(userBalance, 18),
+          };
+        })
+      );
+      setRegisteredUsers(detailedUsers);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchTotalSupply = async () => {
+    try {
+      const contract = await getContract();
+      const result = await contract.totalSupply();
+      setTotalMinted(ethers.formatUnits(result, 18));
     } catch (err) {
       console.error(err);
     }
@@ -183,11 +106,13 @@ export default function Home() {
       await tx.wait();
       alert("Transfer successful");
       fetchBalance();
+      fetchUsers(); // Update user balances after transfer
     } catch (err) {
       console.error(err);
       alert("Transfer failed");
     }
   };
+
   const addTokenToMetaMask = async () => {
     try {
       if (window.ethereum) {
@@ -196,10 +121,10 @@ export default function Home() {
           params: {
             type: "ERC20",
             options: {
-              address: "0xe0F577E91dfdF582a007fc7b4ea4D176EA667125", // your token address
+              address: "0xe0F577E91dfdF582a007fc7b4ea4D176EA667125", // Your token address
               symbol: "CTK",
               decimals: 18,
-              image: "https://cryptologos.cc/logos/ethereum-eth-logo.png", // optional
+              image: "https://cryptologos.cc/logos/ethereum-eth-logo.png", // Optional
             },
           },
         });
@@ -213,6 +138,7 @@ export default function Home() {
     if (account) {
       fetchBalance();
       fetchUsers();
+      fetchTotalSupply(); // Fetch total supply on account connection
     }
   }, [account]);
 
@@ -235,6 +161,10 @@ export default function Home() {
           <p>
             Your Balance: <span className="text-green-400">{balance} CTK</span>
           </p>
+          <p>
+            Total Tokens Minted:{" "}
+            <span className="text-blue-400">{totalMinted} CTK</span>
+          </p>
 
           <div className="space-x-2">
             <button
@@ -255,7 +185,7 @@ export default function Home() {
             >
               Add CTK to MetaMask
             </button>
-          </div>  
+          </div>
 
           <div className="mt-6">
             <h2 className="text-lg font-bold mb-2">💸 Transfer Tokens</h2>
@@ -285,7 +215,9 @@ export default function Home() {
             <h2 className="text-lg font-bold">👥 Registered Users</h2>
             <ul className="list-disc ml-6">
               {registeredUsers.map((user, idx) => (
-                <li key={idx}>{user}</li>
+                <li key={idx}>
+                  {user.address} - {user.balance} CTK
+                </li>
               ))}
             </ul>
           </div>
