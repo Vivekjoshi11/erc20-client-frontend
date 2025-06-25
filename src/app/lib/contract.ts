@@ -1,0 +1,35 @@
+// import { ethers } from 'ethers';
+// import abi from './abi.json';
+
+// const CONTRACT_ADDRESS = '0xe0F577E91dfdF582a007fc7b4ea4D176EA667125'; // Update if redeployed
+
+// export const getContract = async () => {
+//   if (!window.ethereum) throw new Error('MetaMask not found');
+
+//   const provider = new ethers.BrowserProvider(window.ethereum);
+//   const signer = await provider.getSigner();
+//   return new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+// };
+
+
+
+// import { ethers } from "ethers";
+// import abi from "../utils/NTTToken.json";
+
+// const CONTRACT_ADDRESS = "0x205F237cA86B67875f6A48733C8837E1fEc118a6";
+
+// export const getContract = (providerOrSigner: ethers.Provider | ethers.Signer) => {
+//   return new ethers.Contract(CONTRACT_ADDRESS, abi, providerOrSigner);
+// };
+
+import { ethers } from "ethers";
+import abi from "../utils/NTTToken.json";
+
+const CONTRACT_ADDRESS = "0xF88E5ABC3B03b4DA870C33D229f2b5F7bDA9eF2d";
+
+export const getContract = (providerOrSigner: ethers.Provider | ethers.Signer) => {
+  return new ethers.Contract(CONTRACT_ADDRESS, abi, providerOrSigner);
+};
+
+
+
