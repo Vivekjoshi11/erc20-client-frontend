@@ -2,9 +2,12 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract NTTToken is ERC20, Ownable {
+contract NTTToken is ERC20, AccessControl {
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant NTT_ROLE = keccak256("NTT_ROLE");
+
     struct NTT {
         string name;
         string physicalAddress;
@@ -23,18 +26,20 @@ contract NTTToken is ERC20, Ownable {
     mapping(address => NTT) public ntts;
     mapping(address => Transaction[]) public nttTransactions;
     address[] public allNTTs;
+    address public mainAdmin; // manual fallback for refunds
 
-    // Events for off-chain tracking
     event NTTRegistered(address indexed wallet, string name, string physicalAddress, uint256 initialTokens);
     event TransactionRecorded(address indexed from, address indexed to, uint256 amount, uint256 timestamp, string txType);
 
-    constructor(address initialOwner) ERC20("ClientToken", "CTK") Ownable(initialOwner) {
-        // Mint 100,000 tokens to admin
-        _mint(initialOwner, 100000 * 10 ** decimals());
+    constructor(address initialAdmin) ERC20("ClientToken", "CTK") {
+        _grantRole(DEFAULT_ADMIN_ROLE, initialAdmin);
+        _grantRole(ADMIN_ROLE, initialAdmin);
+        mainAdmin = initialAdmin;
+        _mint(initialAdmin, 100000 * 10 ** decimals());
     }
 
     modifier onlyNTT() {
-        require(ntts[msg.sender].isRegistered, "Only NTT can call");
+        require(hasRole(NTT_ROLE, msg.sender), "Only NTT can call");
         _;
     }
 
@@ -43,7 +48,7 @@ contract NTTToken is ERC20, Ownable {
         string memory addr,
         address wallet,
         uint256 initialTokens
-    ) external onlyOwner {
+    ) external onlyRole(ADMIN_ROLE) {
         require(!ntts[wallet].isRegistered, "Already registered");
         require(bytes(name).length > 0, "Name cannot be empty");
         require(bytes(addr).length > 0, "Address cannot be empty");
@@ -57,6 +62,8 @@ contract NTTToken is ERC20, Ownable {
         });
 
         allNTTs.push(wallet);
+        _grantRole(NTT_ROLE, wallet);
+
         if (initialTokens > 0) {
             _mint(wallet, initialTokens);
         }
@@ -109,7 +116,7 @@ contract NTTToken is ERC20, Ownable {
         emit TransactionRecorded(msg.sender, to, amount, block.timestamp, "nttToUser");
     }
 
-    function adminCreditNTT(address nttAddress, uint256 amount) external onlyOwner {
+    function adminCreditNTT(address nttAddress, uint256 amount) external onlyRole(ADMIN_ROLE) {
         require(ntts[nttAddress].isRegistered, "NTT not found");
         require(amount > 0, "Amount must be greater than zero");
 
@@ -130,17 +137,17 @@ contract NTTToken is ERC20, Ownable {
         require(amount > 0, "Amount must be greater than zero");
         require(balanceOf(msg.sender) >= amount, "Insufficient balance");
 
-        _transfer(msg.sender, owner(), amount);
+        _transfer(msg.sender, mainAdmin, amount);
 
         nttTransactions[msg.sender].push(Transaction({
             from: msg.sender,
-            to: owner(),
+            to: mainAdmin,
             amount: amount,
             timestamp: block.timestamp,
             txType: "nttToAdmin"
         }));
 
-        emit TransactionRecorded(msg.sender, owner(), amount, block.timestamp, "nttToAdmin");
+        emit TransactionRecorded(msg.sender, mainAdmin, amount, block.timestamp, "nttToAdmin");
     }
 
     function getNTTTransactions(address nttAddr) external view returns (Transaction[] memory) {

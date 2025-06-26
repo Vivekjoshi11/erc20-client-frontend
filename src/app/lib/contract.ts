@@ -25,7 +25,8 @@
 import { ethers } from "ethers";
 import abi from "../utils/NTTToken.json";
 
-const CONTRACT_ADDRESS = "0xF88E5ABC3B03b4DA870C33D229f2b5F7bDA9eF2d";
+// const CONTRACT_ADDRESS = "0xF88E5ABC3B03b4DA870C33D229f2b5F7bDA9eF2d";
+const CONTRACT_ADDRESS = "0x3fb4EE3788a6C0d5F868BD8a629f8233fD3c17c1";
 
 export const getContract = (providerOrSigner: ethers.Provider | ethers.Signer) => {
   return new ethers.Contract(CONTRACT_ADDRESS, abi, providerOrSigner);
