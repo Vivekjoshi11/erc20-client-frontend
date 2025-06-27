@@ -25,8 +25,10 @@ contract NTTToken is ERC20, AccessControl {
 
     mapping(address => NTT) public ntts;
     mapping(address => Transaction[]) public nttTransactions;
+    mapping(address => mapping(address => Transaction[])) public userToNTTTransactions;
+
     address[] public allNTTs;
-    address public mainAdmin; // manual fallback for refunds
+    address public mainAdmin;
 
     event NTTRegistered(address indexed wallet, string name, string physicalAddress, uint256 initialTokens);
     event TransactionRecorded(address indexed from, address indexed to, uint256 amount, uint256 timestamp, string txType);
@@ -43,12 +45,7 @@ contract NTTToken is ERC20, AccessControl {
         _;
     }
 
-    function registerNTT(
-        string memory name,
-        string memory addr,
-        address wallet,
-        uint256 initialTokens
-    ) external onlyRole(ADMIN_ROLE) {
+    function registerNTT(string memory name, string memory addr, address wallet, uint256 initialTokens) external onlyRole(ADMIN_ROLE) {
         require(!ntts[wallet].isRegistered, "Already registered");
         require(bytes(name).length > 0, "Name cannot be empty");
         require(bytes(addr).length > 0, "Address cannot be empty");
@@ -87,13 +84,16 @@ contract NTTToken is ERC20, AccessControl {
 
         _transfer(msg.sender, nttAddress, amount);
 
-        nttTransactions[nttAddress].push(Transaction({
+        Transaction memory txRecord = Transaction({
             from: msg.sender,
             to: nttAddress,
             amount: amount,
             timestamp: block.timestamp,
             txType: "userToNTT"
-        }));
+        });
+
+        nttTransactions[nttAddress].push(txRecord);
+        userToNTTTransactions[msg.sender][nttAddress].push(txRecord);
 
         emit TransactionRecorded(msg.sender, nttAddress, amount, block.timestamp, "userToNTT");
     }
@@ -102,16 +102,20 @@ contract NTTToken is ERC20, AccessControl {
         require(amount > 0, "Amount must be greater than zero");
         require(balanceOf(msg.sender) >= amount, "Insufficient NTT balance");
         require(to != address(0), "Invalid recipient address");
+        require(!ntts[to].isRegistered, "Cannot send to another NTT");
 
         _transfer(msg.sender, to, amount);
 
-        nttTransactions[msg.sender].push(Transaction({
+        Transaction memory txRecord = Transaction({
             from: msg.sender,
             to: to,
             amount: amount,
             timestamp: block.timestamp,
             txType: "nttToUser"
-        }));
+        });
+
+        nttTransactions[msg.sender].push(txRecord);
+        userToNTTTransactions[to][msg.sender].push(txRecord);
 
         emit TransactionRecorded(msg.sender, to, amount, block.timestamp, "nttToUser");
     }
@@ -150,6 +154,36 @@ contract NTTToken is ERC20, AccessControl {
         emit TransactionRecorded(msg.sender, mainAdmin, amount, block.timestamp, "nttToAdmin");
     }
 
+    function removeNTT(address wallet) external onlyRole(ADMIN_ROLE) {
+        require(ntts[wallet].isRegistered, "NTT not found");
+
+        uint256 balance = balanceOf(wallet);
+        if (balance > 0) {
+            _transfer(wallet, mainAdmin, balance);
+
+            nttTransactions[wallet].push(Transaction({
+                from: wallet,
+                to: mainAdmin,
+                amount: balance,
+                timestamp: block.timestamp,
+                txType: "nttToAdmin (revoke)"
+            }));
+
+            emit TransactionRecorded(wallet, mainAdmin, balance, block.timestamp, "nttToAdmin (revoke)");
+        }
+
+        _revokeRole(NTT_ROLE, wallet);
+        delete ntts[wallet];
+
+        for (uint256 i = 0; i < allNTTs.length; i++) {
+            if (allNTTs[i] == wallet) {
+                allNTTs[i] = allNTTs[allNTTs.length - 1];
+                allNTTs.pop();
+                break;
+            }
+        }
+    }
+
     function getNTTTransactions(address nttAddr) external view returns (Transaction[] memory) {
         require(ntts[nttAddr].isRegistered, "NTT not found");
         return nttTransactions[nttAddr];
@@ -168,5 +202,24 @@ contract NTTToken is ERC20, AccessControl {
         require(ntts[wallet].isRegistered, "NTT not found");
         NTT memory ntt = ntts[wallet];
         return (ntt.name, ntt.physicalAddress, balanceOf(wallet));
+    }
+
+    function getUserToNTTTransactions(address user, address ntt) external view returns (Transaction[] memory) {
+        return userToNTTTransactions[user][ntt];
+    }
+
+    function getUserNetBalanceWithNTT(address user, address ntt) external view returns (int256) {
+        Transaction[] memory txs = userToNTTTransactions[user][ntt];
+        int256 net = 0;
+
+        for (uint256 i = 0; i < txs.length; i++) {
+            if (txs[i].from == user) {
+                net -= int256(txs[i].amount);
+            } else if (txs[i].to == user) {
+                net += int256(txs[i].amount);
+            }
+        }
+
+        return net;
     }
 }
