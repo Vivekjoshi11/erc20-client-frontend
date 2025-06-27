@@ -91,7 +91,7 @@ export default function UserPayToNTT() {
       <h2 className="text-xl font-semibold mt-10 mb-2">NTTs</h2>
       <div className="space-y-4">
         {ntts.map((ntt) => (
-          <div key={ntt.address} className="border rounded p-4 shadow bg-black">
+          <div key={ntt.name} className="border rounded p-4 shadow bg-black">
             <p><strong>Name:</strong> {ntt.name}</p>
             <p><strong>Wallet:</strong> {ntt.address}</p>
             <p><strong>Address:</strong> {ntt.physicalAddress}</p>

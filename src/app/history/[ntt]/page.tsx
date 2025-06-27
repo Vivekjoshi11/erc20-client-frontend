@@ -33,6 +33,7 @@ export default function NTTTransactionHistory() {
             <div><strong>To:</strong> {tx.to}</div>
             <div><strong>Amount:</strong> {ethers.formatUnits(tx.amount, 18)}</div>
             <div><strong>Time:</strong> {new Date(Number(tx.timestamp) * 1000).toLocaleString()}</div>
+            <div> {tx.hash} </div>
           </li>
         ))}
       </ul>

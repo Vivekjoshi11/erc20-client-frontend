@@ -11,20 +11,38 @@ export default function AdminCreditPage() {
   const [status, setStatus] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
 
-  useEffect(() => {
-    const init = async () => {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = getContract(signer);
-      const owner = await contract.owner();
-      const userAddress = await signer.getAddress();
-      setIsAdmin(userAddress.toLowerCase() === owner.toLowerCase());
+  // useEffect(() => {
+  //   const init = async () => {
+  //     const provider = new ethers.BrowserProvider(window.ethereum);
+  //     const signer = await provider.getSigner();
+  //     const contract = getContract(signer);
+  //     const owner = await contract.owner();
+  //     const userAddress = await signer.getAddress();
+  //     setIsAdmin(userAddress.toLowerCase() === owner.toLowerCase());
 
-      const all = await contract.getAllNTTs();
-      setNtts(all);
-    };
-    init();
-  }, []);
+  //     const all = await contract.getAllNTTs();
+  //     setNtts(all);
+  //   };
+  //   init();
+  // }, []);
+
+  useEffect(() => {
+  const init = async () => {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const contract = getContract(signer);
+
+    const userAddress = await signer.getAddress();
+
+    const ADMIN_ROLE = ethers.keccak256(ethers.toUtf8Bytes("ADMIN_ROLE"));
+    const isAdmin = await contract.hasRole(ADMIN_ROLE, userAddress);
+    setIsAdmin(isAdmin);
+
+    const all = await contract.getAllNTTs();
+    setNtts(all);
+  };
+  init();
+}, []);
 
   const credit = async () => {
     try {

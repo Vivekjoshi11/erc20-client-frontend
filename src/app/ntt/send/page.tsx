@@ -24,7 +24,7 @@ export default function NTTPayToUser() {
       setMessage("✅ Payment successful");
     } catch (err) {
       console.error(err);
-      setMessage("❌ Transaction failed. Make sure this wallet is a registered NTT.");
+      setMessage("❌ Transaction failed. Make sure this wallet is a User not an NTT.");
     }
   };
 
