@@ -1,3 +1,6 @@
+
+
+
 "use client";
 
 import { useState } from "react";
@@ -17,6 +20,7 @@ export default function NTTRefundToAdmin() {
       const tx = await contract.nttRefundAdmin(ethers.parseUnits(amount, 18));
       await tx.wait();
       setMessage("✅ Tokens refunded to Admin");
+      setAmount("");
     } catch (err) {
       console.error(err);
       setMessage("❌ Refund failed. Are you a registered NTT?");
@@ -24,20 +28,32 @@ export default function NTTRefundToAdmin() {
   };
 
   return (
-    <div className="p-6 max-w-md mx-auto">
-      <h1 className="text-xl font-bold mb-4">NTT Refund to Admin</h1>
-      <ConnectWallet onConnect={setSigner} />
-      <input
-        type="text"
-        placeholder="Amount to refund"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        className="input my-4"
-      />
-      <button onClick={handleRefund} className="btn">
-        Refund
-      </button>
-      {message && <p className="text-sm mt-2">{message}</p>}
+    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-zinc-900 p-6 rounded-xl border border-zinc-700 shadow-md">
+        <h1 className="text-2xl font-bold text-center mb-6">↩️ NTT Refund to Admin</h1>
+
+        <ConnectWallet onConnect={setSigner} />
+
+        <input
+          type="number"
+          placeholder="Amount to refund"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="w-full bg-zinc-800 text-white p-3 rounded border border-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-6"
+        />
+
+        <button
+          onClick={handleRefund}
+          disabled={!amount}
+          className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition disabled:opacity-50"
+        >
+          Refund
+        </button>
+
+        {message && (
+          <p className="text-sm text-center mt-4 text-gray-300">{message}</p>
+        )}
+      </div>
     </div>
   );
 }

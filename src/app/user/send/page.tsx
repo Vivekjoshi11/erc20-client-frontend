@@ -48,7 +48,7 @@ export default function UserPayToNTT() {
       ethers.parseUnits(amount, 18)
     );
     await tx.wait();
-    alert("Payment successful");
+    alert("✅ Payment successful!");
     fetchNTTs();
   };
 
@@ -57,47 +57,59 @@ export default function UserPayToNTT() {
   }, []);
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Pay to Registered NTT</h1>
-      <ConnectWallet onConnect={setSigner} />
+    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4">
+      <div className="bg-zinc-900 w-full max-w-2xl rounded-xl shadow-lg p-8">
+        <h1 className="text-3xl font-bold mb-6 text-center">Pay to Registered NTT</h1>
+        <ConnectWallet onConnect={setSigner} />
 
-      <div className="mt-4 space-y-4">
-        <select
-          className="input"
-          value={selected}
-          onChange={(e) => setSelected(e.target.value)}
-        >
-          <option value="">Select NTT</option>
-          {ntts.map((ntt) => (
-            <option key={ntt.address} value={ntt.address}>
-              {ntt.name} ({ntt.address.slice(0, 6)}...)
-            </option>
-          ))}
-        </select>
+        <div className="mt-6 space-y-4">
+          <label className="block text-sm font-medium">Select NTT</label>
+          <select
+            className="w-full bg-zinc-800 border border-zinc-600 text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={selected}
+            onChange={(e) => setSelected(e.target.value)}
+          >
+            <option value="">-- Select NTT --</option>
+            {ntts.map((ntt) => (
+              <option key={ntt.address} value={ntt.address}>
+                {ntt.name} ({ntt.address.slice(0, 6)}...)
+              </option>
+            ))}
+          </select>
 
-        <input
-          type="text"
-          placeholder="Amount to send"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="input"
-        />
+          <label className="block text-sm font-medium">Amount (CTK)</label>
+          <input
+            type="number"
+            placeholder="Enter amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="w-full bg-zinc-800 border border-zinc-600 text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
-        <button onClick={handlePay} className="btn">
-          Pay NTT
-        </button>
+          <button
+            onClick={handlePay}
+            className="w-full bg-blue-600 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Pay NTT
+          </button>
+        </div>
       </div>
 
-      <h2 className="text-xl font-semibold mt-10 mb-2">NTTs</h2>
-      <div className="space-y-4">
-        {ntts.map((ntt) => (
-          <div key={ntt.name} className="border rounded p-4 shadow bg-black">
-            <p><strong>Name:</strong> {ntt.name}</p>
-            <p><strong>Wallet:</strong> {ntt.address}</p>
-            <p><strong>Address:</strong> {ntt.physicalAddress}</p>
-            <p><strong>Balance:</strong> {ntt.balance} CTK</p>
-          </div>
-        ))}
+      <div className="w-full max-w-2xl mt-10">
+        <h2 className="text-2xl font-semibold mb-4">Registered NTTs</h2>
+        <div className="space-y-4">
+          {ntts.map((ntt) => (
+            <div
+              key={ntt.address}
+              className="bg-zinc-800 border border-zinc-700 rounded-lg p-4 shadow-md"
+            >
+              <p><strong>Name:</strong> {ntt.name}</p>
+              <p><strong>Wallet:</strong> {ntt.address}</p>
+              <p><strong>Physical Address:</strong> {ntt.physicalAddress}</p>
+              <p><strong>Balance:</strong> {ntt.balance} CTK</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

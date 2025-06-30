@@ -1,5 +1,4 @@
-
-
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -71,7 +70,7 @@ export default function RegisterNTT() {
         ethers.parseUnits(initial, 18)
       );
       await tx.wait();
-      alert("NTT Registered");
+      alert("✅ NTT Registered");
       setName("");
       setPhysicalAddress("");
       setWallet("");
@@ -79,7 +78,7 @@ export default function RegisterNTT() {
       fetchNTTs();
     } catch (err) {
       console.error("Registration failed:", err);
-      alert("Registration failed");
+      alert("❌ Registration failed");
     } finally {
       setLoading(false);
     }
@@ -94,11 +93,11 @@ export default function RegisterNTT() {
       const contract = getContract(signer);
       const tx = await contract.removeNTT(nttAddress);
       await tx.wait();
-      alert("NTT removed successfully");
+      alert("✅ NTT removed successfully");
       fetchNTTs();
     } catch (err) {
       console.error("Remove failed:", err);
-      alert("Failed to remove NTT");
+      alert("❌ Failed to remove NTT");
     } finally {
       setLoading(false);
     }
@@ -115,78 +114,81 @@ export default function RegisterNTT() {
   }, [signer]);
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Register NTT</h1>
-      <ConnectWallet onConnect={setSigner} />
-      {!isAdmin && signer && (
-        <p className="text-red-500 mt-4">You are not authorized to register or remove NTTs.</p>
-      )}
+    <div className="min-h-screen bg-black text-white px-4 py-10 flex justify-center">
+      <div className="w-full max-w-3xl">
+        <h1 className="text-3xl font-bold mb-6 text-center">📋 Register NTT</h1>
+        <ConnectWallet onConnect={setSigner} />
 
-      {isAdmin && (
-        <>
-          <div className="grid grid-cols-1 gap-4 mt-4">
+        {!isAdmin && signer && (
+          <p className="text-red-500 mt-4 text-center">
+            You are not authorized to register or remove NTTs.
+          </p>
+        )}
+
+        {isAdmin && (
+          <div className="grid grid-cols-1 gap-4 mt-6 bg-zinc-900 p-6 rounded-xl shadow-lg border border-zinc-700">
             <input
               placeholder="NTT Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="input"
+              className="bg-zinc-800 text-white p-2 rounded border border-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               placeholder="Physical Address"
               value={physicalAddress}
               onChange={(e) => setPhysicalAddress(e.target.value)}
-              className="input"
+              className="bg-zinc-800 text-white p-2 rounded border border-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               placeholder="Wallet Address"
               value={wallet}
               onChange={(e) => setWallet(e.target.value)}
-              className="input"
+              className="bg-zinc-800 text-white p-2 rounded border border-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               placeholder="Initial Tokens"
               value={initial}
               onChange={(e) => setInitial(e.target.value)}
-              className="input"
+              className="bg-zinc-800 text-white p-2 rounded border border-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
               onClick={handleRegister}
-              className="btn mt-2"
               disabled={loading}
+              className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition disabled:opacity-50"
             >
               {loading ? "Processing..." : "Register"}
             </button>
           </div>
-        </>
-      )}
+        )}
 
-      <h2 className="text-xl font-semibold mt-10 mb-2">Registered NTTs</h2>
-      <div className="space-y-4">
-        {ntts.map((ntt) => (
-          <div
-            key={ntt.address}
-            className="border rounded p-4 shadow bg-black"
-          >
-            <p><strong>Name:</strong> {ntt.name}</p>
-            <p><strong>Wallet:</strong> {ntt.address}</p>
-            <p><strong>Address:</strong> {ntt.physicalAddress}</p>
-            <p><strong>Balance:</strong> {ntt.balance} CTK</p>
-            <a
-              href={`/history/${ntt.address}`}
-              className="text-blue-600 underline mt-1 inline-block"
+        <h2 className="text-2xl font-semibold mt-10 mb-4 text-center">🏢 Registered NTTs</h2>
+        <div className="space-y-6">
+          {ntts.map((ntt) => (
+            <div
+              key={ntt.address}
+              className="bg-zinc-900 p-5 rounded-xl border border-zinc-700 shadow-md"
             >
-              View Transaction History
-            </a>
-            {isAdmin && (
-              <button
-                onClick={() => handleDeleteNTT(ntt.address)}
-                className="mt-2 text-red-500 underline"
+              <p><strong>Name:</strong> {ntt.name}</p>
+              <p><strong>Wallet:</strong> {ntt.address}</p>
+              <p><strong>Address:</strong> {ntt.physicalAddress}</p>
+              <p><strong>Balance:</strong> {ntt.balance} CTK</p>
+              <a
+                href={`/history/${ntt.address}`}
+                className="text-blue-500 underline mt-2 inline-block"
               >
-                Remove NTT
-              </button>
-            )}
-          </div>
-        ))}
+                View Transaction History
+              </a>
+              {isAdmin && (
+                <button
+                  onClick={() => handleDeleteNTT(ntt.address)}
+                  className="text-red-500 underline mt-2 block"
+                >
+                  Remove NTT
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
