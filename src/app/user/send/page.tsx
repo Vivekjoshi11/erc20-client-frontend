@@ -17,6 +17,8 @@ export default function UserPayToNTT() {
   const [ntts, setNtts] = useState<NTT[]>([]);
   const [selected, setSelected] = useState<string>("");
   const [amount, setAmount] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [roleAllowed, setRoleAllowed] = useState<boolean | null>(null); // null means "not checked yet"
 
   const fetchNTTs = async () => {
     try {
@@ -52,9 +54,59 @@ export default function UserPayToNTT() {
     fetchNTTs();
   };
 
+  const checkRole = async (signer: ethers.JsonRpcSigner) => {
+    try {
+      const contract = getContract(signer);
+      const address = await signer.getAddress();
+
+      const ADMIN_ROLE = ethers.keccak256(ethers.toUtf8Bytes("ADMIN_ROLE"));
+      const USER_ROLE = ethers.keccak256(ethers.toUtf8Bytes("USER_ROLE"));
+      const NTT_ROLE = ethers.keccak256(ethers.toUtf8Bytes("NTT_ROLE"));
+
+      const isAdmin = await contract.hasRole(ADMIN_ROLE, address);
+      const isUser = await contract.hasRole(USER_ROLE, address);
+      const isNTT = await contract.hasRole(NTT_ROLE, address);
+
+      if (isAdmin || isUser) {
+        setRoleAllowed(true);
+        fetchNTTs();
+      } else if (isNTT) {
+        setRoleAllowed(false);
+      } else {
+        setRoleAllowed(false);
+      }
+    } catch (err) {
+      console.error("Failed to check role:", err);
+      setRoleAllowed(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Run checkRole whenever signer is set
   useEffect(() => {
-    fetchNTTs();
-  }, []);
+    if (signer) {
+      checkRole(signer);
+    }
+  }, [signer]);
+
+  // Render logic
+  if (loading || roleAllowed === null) {
+    return (
+      <div className="min-h-screen bg-black text-white flex justify-center items-center">
+        <div className="text-lg">Connecting Wallet...</div>
+        <ConnectWallet onConnect={setSigner} />
+      </div>
+    );
+  }
+
+  if (!roleAllowed) {
+    return (
+      <div className="min-h-screen bg-black text-red-500 flex justify-center items-center">
+        ❌ Access Denied: Only Users or Admins can access this page.
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4">
