@@ -1,6 +1,4 @@
 
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -24,9 +22,7 @@ interface NTT {
 export default function AdminTransactionDashboard() {
   const [signer, setSigner] = useState<ethers.JsonRpcSigner | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  // Removed unused txs state
   const [loading, setLoading] = useState(true);
-  // Removed unused adminAddress state
 
   const [mintedTotal, setMintedTotal] = useState<bigint>(BigInt(0));
   const [revokedTotal, setRevokedTotal] = useState<bigint>(BigInt(0));
@@ -39,7 +35,6 @@ export default function AdminTransactionDashboard() {
         const signer = await provider.getSigner();
         const address = await signer.getAddress();
         setSigner(signer);
-        // setAdminAddress(address); // Removed unused setter
 
         const contract = getContract(signer);
         const ADMIN_ROLE = ethers.keccak256(ethers.toUtf8Bytes("ADMIN_ROLE"));
@@ -60,7 +55,6 @@ export default function AdminTransactionDashboard() {
         }
 
         const sortedTxs = allTxs.sort((a, b) => Number(b.timestamp) - Number(a.timestamp));
-        // setTxs(sortedTxs); // Removed unused txs state
 
         let minted = BigInt(0);
         let revoked = BigInt(0);
