@@ -146,14 +146,14 @@ export default function AdminTransactionDashboard() {
   return (
     <div className="min-h-screen bg-black text-white px-4 py-10 flex justify-center">
       <div className="w-full max-w-5xl">
-        <h1 className="text-3xl font-bold mb-6 text-center">🧮 Admin Dashboard - Token and it's history</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center">🧮 Admin Dashboard - Token and  history</h1>
 
         <div className="bg-zinc-900 p-6 rounded-xl mb-8 border border-zinc-700">
           <p className="mb-2"><strong>Total Tokens Minted to NTTs:</strong> {ethers.formatUnits(mintedTotal, 18)} CTK</p>
           <p><strong>Total Tokens Revoked from NTTs:</strong> {ethers.formatUnits(revokedTotal, 18)} CTK</p>
         </div>
 
-        <h2 className="text-2xl font-semibold mb-4 text-center">📜 All NTT's detail and it's Transaction History</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-center">📜 All NTT detail and it Transaction History</h2>
 
        
         <div className="space-y-6">
