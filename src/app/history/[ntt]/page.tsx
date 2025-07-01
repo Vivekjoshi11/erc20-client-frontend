@@ -17,10 +17,9 @@ export default function NTTTransactionHistory() {
       try {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const contract = getContract(provider);
-        // const txList = await contract.getNTTTransactions(nttAddress);
-        // setTxs(txList);
+       
         const txList = await contract.getNTTTransactions(nttAddress);
-setTxs([...txList].reverse()); // Reverse to show latest first
+setTxs([...txList].reverse()); 
 
       } catch (err) {
         console.error("Failed to fetch transaction history", err);

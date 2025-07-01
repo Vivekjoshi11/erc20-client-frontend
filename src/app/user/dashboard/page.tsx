@@ -22,10 +22,12 @@ interface AggregatedTx {
   transactions: any[];
 }
 
+
 export default function UserDashboard() {
   const [userAddress, setUserAddress] = useState("");
   const [txSummary, setTxSummary] = useState<AggregatedTx[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalBalance, setTotalBalance] = useState<bigint>(BigInt(0)); // NEW STATE
 
   useEffect(() => {
     const load = async () => {
@@ -40,6 +42,7 @@ export default function UserDashboard() {
         const allNTTs: string[] = await contract.getAllNTTs();
 
         const summary: AggregatedTx[] = [];
+        let total = BigInt(0); // NEW ACCUMULATOR
 
         for (const nttAddr of allNTTs) {
           const txs = await contract.getNTTTransactions(nttAddr);
@@ -64,30 +67,20 @@ export default function UserDashboard() {
           }
 
           if (filtered.length > 0) {
+            const net = received - sent;
+            total += net; // ACCUMULATE USER BALANCE
+
             try {
               const [name] = await contract.getNTTDetails(nttAddr);
-              summary.push({
-                ntt: nttAddr,
-                name,
-                received,
-                sent,
-                net: received - sent,
-                transactions: filtered,
-              });
-            } catch (e) {
-              summary.push({
-                ntt: nttAddr,
-                name: "Unknown NTT",
-                received,
-                sent,
-                net: received - sent,
-                transactions: filtered,
-              });
+              summary.push({ ntt: nttAddr, name, received, sent, net, transactions: filtered });
+            } catch {
+              summary.push({ ntt: nttAddr, name: "Unknown NTT", received, sent, net, transactions: filtered });
             }
           }
         }
 
         setTxSummary(summary);
+        setTotalBalance(total); // SET TOTAL BALANCE
       } catch (err) {
         console.error("Error loading user dashboard:", err);
       }
@@ -100,7 +93,14 @@ export default function UserDashboard() {
   return (
     <div className="min-h-screen bg-black text-white px-4 py-10 flex justify-center">
       <div className="w-full max-w-4xl">
-        <h2 className="text-3xl font-bold mb-6 text-center"> User Dashboard: History</h2>
+        <h2 className="text-3xl font-bold mb-6 text-center">User Dashboard: History</h2>
+
+        {/* 🔢 TOTAL BALANCE */}
+        {!loading && txSummary.length > 0 && (
+          <div className="text-center text-lg font-semibold mb-6 text-green-400">
+            💰 Total Balance Across All NTTs: {ethers.formatUnits(totalBalance, 18)} CTK
+          </div>
+        )}
 
         {loading ? (
           <p className="text-center text-gray-400">Loading your transaction summary...</p>
@@ -121,9 +121,7 @@ export default function UserDashboard() {
                     View Transactions ({tx.transactions.length})
                   </summary>
                   <ul className="mt-3 space-y-3">
-                    {/* {tx.transactions.map((t, i) => ( */}
                     {[...tx.transactions].reverse().map((t, i) => (
-
                       <li
                         key={i}
                         className="bg-zinc-800 p-3 rounded-lg border border-zinc-700"
@@ -145,3 +143,4 @@ export default function UserDashboard() {
     </div>
   );
 }
+
