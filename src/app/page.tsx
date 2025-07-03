@@ -34,9 +34,9 @@ export default function Home() {
         <Link href="/ntt/refund" className="block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded text-center">
           NTT: refund to Admin
         </Link>
-        <Link href="/history/NTT" className="block bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded text-center">
+        {/* <Link href="/history/NTT" className="block bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded text-center">
           View NTT Transaction History
-        </Link>
+        </Link> */}
         <Link href="/ntt/history" className="block bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded text-center">
           View NTT Transaction History of connected wallet
         </Link>

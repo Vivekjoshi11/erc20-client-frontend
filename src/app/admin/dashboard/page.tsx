@@ -23,6 +23,7 @@ export default function AdminTransactionDashboard() {
   const [signer, setSigner] = useState<ethers.JsonRpcSigner | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [adminAddress, setAdminAddress] = useState<string>("");
 
   const [mintedTotal, setMintedTotal] = useState<bigint>(BigInt(0));
   const [revokedTotal, setRevokedTotal] = useState<bigint>(BigInt(0));
@@ -34,6 +35,7 @@ export default function AdminTransactionDashboard() {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
         const address = await signer.getAddress();
+        setAdminAddress(address);
         setSigner(signer);
 
         const contract = getContract(signer);
@@ -128,6 +130,7 @@ export default function AdminTransactionDashboard() {
   if (loading) {
     return <div className="min-h-screen bg-black text-white flex justify-center items-center">Loading...</div>;
   }
+  
 
   if (!isAdmin) {
     return (
@@ -140,9 +143,12 @@ export default function AdminTransactionDashboard() {
   return (
     <div className="min-h-screen bg-black text-white px-4 py-10 flex justify-center">
       <div className="w-full max-w-5xl">
-        <h1 className="text-3xl font-bold mb-6 text-center">🧮 Admin Dashboard - Token and  history</h1>
+
+       <h1 className="text-3xl font-bold mb-2 text-center">🧮 Admin Dashboard - Token and history</h1>
+<p className="text-center text-zinc-400 mb-6">Admin Wallet Address: {adminAddress}</p>
 
         <div className="bg-zinc-900 p-6 rounded-xl mb-8 border border-zinc-700">
+          
           <p className="mb-2"><strong>Total Tokens Minted to NTTs:</strong> {ethers.formatUnits(mintedTotal, 18)} CTK</p>
           <p><strong>Total Tokens Revoked from NTTs:</strong> {ethers.formatUnits(revokedTotal, 18)} CTK</p>
         </div>
@@ -181,3 +187,4 @@ export default function AdminTransactionDashboard() {
     </div>
   );
 }
+

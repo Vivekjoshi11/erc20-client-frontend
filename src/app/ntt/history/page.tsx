@@ -25,6 +25,7 @@ export default function NTTTransactionHistory() {
   const [revoked, setRevoked] = useState<bigint>(BigInt(0));
   const [visibleCount, setVisibleCount] = useState(2);
   const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
     const fetchTx = async () => {
@@ -131,7 +132,9 @@ export default function NTTTransactionHistory() {
   return (
     <div className="min-h-screen bg-black text-white py-10 px-4 flex justify-center">
       <div className="w-full max-w-4xl">
-        <h1 className="text-3xl font-bold mb-4 text-center">📜 NTT Transaction History</h1>
+        <h1 className="text-3xl font-bold text-center mb-1">📜 NTT Transaction History</h1>
+        <p className="text-center text-zinc-400 mb-4">NTT Wallet: {nttAddress}</p>
+
 
         <div className="bg-zinc-900 border border-zinc-700 p-6 rounded-xl mb-6 text-sm">
           <p><strong>NTT Name:</strong> {nttName}</p>

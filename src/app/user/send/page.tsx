@@ -83,7 +83,6 @@ export default function UserPayToNTT() {
     }
   };
 
-  // Run checkRole whenever signer is set
   useEffect(() => {
     if (signer) {
       checkRole(signer);

@@ -93,7 +93,10 @@ export default function UserDashboard() {
   return (
     <div className="min-h-screen bg-black text-white px-4 py-10 flex justify-center">
       <div className="w-full max-w-4xl">
-        <h2 className="text-3xl font-bold mb-6 text-center">User Dashboard: History</h2>
+        {/* <h2 className="text-3xl font-bold mb-6 text-center">User Dashboard: History</h2> */}
+        <h2 className="text-3xl font-bold text-center mb-1">User Dashboard: History</h2>
+<p className="text-center text-zinc-400 mb-6">User Wallet address: {userAddress}</p>
+
 
         {/* 🔢 TOTAL BALANCE */}
         {!loading && txSummary.length > 0 && (
