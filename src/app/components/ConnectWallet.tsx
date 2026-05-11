@@ -26,7 +26,7 @@ export default function ConnectWallet({
   return (
     <div className="p-4">
       <button
-        className="px-4 py-2 bg-blue-600 text-white rounded"
+        className="px-6 py-3 bg-accent hover:bg-accent/80 text-accent-foreground font-semibold rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105"
         onClick={connect}
       >
         {address ? `Connected: ${address.slice(0, 6)}...` : "Connect Wallet"}

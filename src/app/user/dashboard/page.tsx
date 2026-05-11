@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -91,56 +90,76 @@ export default function UserDashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white px-4 py-10 flex justify-center">
+    <div className="min-h-screen px-4 py-10 flex justify-center">
       <div className="w-full max-w-4xl">
-        {/* <h2 className="text-3xl font-bold mb-6 text-center">User Dashboard: History</h2> */}
-        <h2 className="text-3xl font-bold text-center mb-1">User Dashboard: History</h2>
-<p className="text-center text-zinc-400 mb-6">User Wallet address: {userAddress}</p>
-
+        <div className="text-center mb-8">
+          <h2 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+            User Dashboard: History
+          </h2>
+          <p className="text-muted-foreground">Wallet Address: {userAddress}</p>
+        </div>
 
         {/* 🔢 TOTAL BALANCE */}
         {!loading && txSummary.length > 0 && (
-          <div className="text-center text-lg font-semibold mb-6 text-green-400">
-            💰 Total Balance Across All NTTs: {ethers.formatUnits(totalBalance, 18)} CTK
+          <div className="bg-card p-6 rounded-xl shadow-lg border border-border mb-8 text-center">
+            <div className="text-2xl font-semibold text-green-400">
+              💰 Total Balance: {ethers.formatUnits(totalBalance, 18)} CTK
+            </div>
           </div>
         )}
 
         {loading ? (
-          <p className="text-center text-gray-400">Loading your transaction summary...</p>
+          <div className="text-center">
+            <div className="animate-pulse text-muted-foreground">Loading transaction summary...</div>
+          </div>
         ) : txSummary.length === 0 ? (
-          <p className="text-center text-gray-400">No transactions found with any NTT yet.</p>
+          <div className="text-center text-muted-foreground">No transactions found.</div>
         ) : (
-          <ul className="space-y-6">
+          <div className="space-y-6">
             {txSummary.map((tx, idx) => (
-              <li key={idx} className="bg-zinc-900 p-6 rounded-xl shadow-md text-sm border border-zinc-700">
-                <div className="mb-2"><span className="font-medium">NTT Name:</span> {tx.name}</div>
-                <div className="mb-2"><span className="font-medium">NTT Address:</span> {tx.ntt}</div>
-                <div className="mb-2"><span className="font-medium">Total Received:</span> {ethers.formatUnits(tx.received, 18)} CTK</div>
-                <div className="mb-2"><span className="font-medium">Total Sent:</span> {ethers.formatUnits(tx.sent, 18)} CTK</div>
-                <div className="mb-2"><span className="font-medium">Net Balance:</span> {ethers.formatUnits(tx.net, 18)} CTK</div>
+              <div key={idx} className="bg-card p-6 rounded-xl shadow-lg border border-border hover:shadow-xl transition-shadow duration-200">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div><span className="font-semibold text-accent">NTT Name:</span> {tx.name}</div>
+                  <div><span className="font-semibold text-accent">Received:</span> {ethers.formatUnits(tx.received, 18)} CTK</div>
+                  <div><span className="font-semibold text-accent">Sent:</span> {ethers.formatUnits(tx.sent, 18)} CTK</div>
+                </div>
+                <div className="mb-4">
+                  <span className="font-semibold text-accent">Net Balance:</span>
+                  <span className={tx.net >= 0 ? "text-green-400" : "text-red-400"}>
+                    {ethers.formatUnits(tx.net, 18)} CTK
+                  </span>
+                </div>
+                <div className="text-sm text-muted-foreground mb-4">
+                  <span className="font-semibold">Address:</span> {tx.ntt}
+                </div>
 
-                <details className="mt-4">
-                  <summary className="cursor-pointer text-blue-400 hover:underline">
-                    View Transactions ({tx.transactions.length})
+                <details className="group">
+                  <summary className="cursor-pointer text-accent hover:text-accent-foreground font-semibold list-none flex items-center gap-2">
+                    <span>View Transactions ({tx.transactions.length})</span>
+                    <svg className="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                   </summary>
-                  <ul className="mt-3 space-y-3">
+                  <div className="mt-4 space-y-3">
                     {[...tx.transactions].reverse().map((t, i) => (
-                      <li
+                      <div
                         key={i}
-                        className="bg-zinc-800 p-3 rounded-lg border border-zinc-700"
+                        className="bg-muted p-4 rounded-lg border border-border"
                       >
-                        <div><strong>Type:</strong> {t.txType}</div>
-                        <div><strong>From:</strong> {t.from}</div>
-                        <div><strong>To:</strong> {t.to}</div>
-                        <div><strong>Amount:</strong> {ethers.formatUnits(t.amount, 18)} CTK</div>
-                        <div><strong>Time:</strong> {new Date(Number(t.timestamp) * 1000).toLocaleString()}</div>
-                      </li>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                          <div><strong>Type:</strong> {t.txType}</div>
+                          <div><strong>Amount:</strong> {ethers.formatUnits(t.amount, 18)} CTK</div>
+                          <div><strong>From:</strong> {t.from}</div>
+                          <div><strong>To:</strong> {t.to}</div>
+                          <div className="md:col-span-2"><strong>Time:</strong> {new Date(Number(t.timestamp) * 1000).toLocaleString()}</div>
+                        </div>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </details>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>
