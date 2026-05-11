@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getContract } from "../../lib/contract";
 import { ethers } from "ethers";
 import ConnectWallet from "../../components/ConnectWallet";
@@ -54,7 +54,7 @@ export default function UserPayToNTT() {
     fetchNTTs();
   };
 
-  const checkRole = async (signer: ethers.JsonRpcSigner) => {
+  const checkRole = useCallback(async (signer: ethers.JsonRpcSigner) => {
     try {
       const contract = getContract(signer);
       const address = await signer.getAddress();
@@ -81,83 +81,96 @@ export default function UserPayToNTT() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (signer) {
       checkRole(signer);
     }
-  }, [signer]);
+  }, [signer, checkRole]);
 
   // Render logic
   if (loading || roleAllowed === null) {
     return (
-      <div className="min-h-screen bg-black text-white flex justify-center items-center">
-        <div className="text-lg">Connecting Wallet...</div>
-        <ConnectWallet onConnect={setSigner} />
+      <div className="min-h-screen flex justify-center items-center">
+        <div className="text-center">
+          <div className="animate-pulse text-muted-foreground mb-4">Connecting Wallet...</div>
+          <ConnectWallet onConnect={setSigner} />
+        </div>
       </div>
     );
   }
 
   if (!roleAllowed) {
     return (
-      <div className="min-h-screen bg-black text-red-500 flex justify-center items-center">
-        ❌ Access Denied: Only Users or Admins can access this page.
+      <div className="min-h-screen flex justify-center items-center">
+        <div className="bg-card p-8 rounded-xl shadow-lg border border-border text-center">
+          <div className="text-red-400 text-xl mb-2">❌ Access Denied</div>
+          <p className="text-muted-foreground">Only Users or Admins can access this page.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4">
-      <div className="bg-zinc-900 w-full max-w-2xl rounded-xl shadow-lg p-8">
-        <h1 className="text-3xl font-bold mb-6 text-center">Pay to Registered NTT</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10">
+      <div className="bg-card w-full max-w-2xl rounded-xl shadow-lg p-8 border border-border mb-8">
+        <h1 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+          Pay to Registered NTT
+        </h1>
         <ConnectWallet onConnect={setSigner} />
 
-        <div className="mt-6 space-y-4">
-          <label className="block text-sm font-medium">Select NTT</label>
-          <select
-            className="w-full bg-zinc-800 border border-zinc-600 text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={selected}
-            onChange={(e) => setSelected(e.target.value)}
-          >
-            <option value="">-- Select NTT --</option>
-            {ntts.map((ntt) => (
-              <option key={ntt.address} value={ntt.address}>
-                {ntt.name} ({ntt.address.slice(0, 6)}...)
-              </option>
-            ))}
-          </select>
+        <div className="mt-6 space-y-6">
+          <div>
+            <label className="block text-sm font-semibold text-accent mb-2">Select NTT</label>
+            <select
+              className="w-full bg-muted border border-border text-foreground p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition"
+              value={selected}
+              onChange={(e) => setSelected(e.target.value)}
+            >
+              <option value="">-- Select NTT --</option>
+              {ntts.map((ntt) => (
+                <option key={ntt.address} value={ntt.address}>
+                  {ntt.name} ({ntt.address.slice(0, 6)}...)
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <label className="block text-sm font-medium">Amount (CTK)</label>
-          <input
-            type="number"
-            placeholder="Enter amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="w-full bg-zinc-800 border border-zinc-600 text-white p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <div>
+            <label className="block text-sm font-semibold text-accent mb-2">Amount (CTK)</label>
+            <input
+              type="number"
+              placeholder="Enter amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full bg-muted border border-border text-foreground p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition"
+            />
+          </div>
 
           <button
             onClick={handlePay}
-            className="w-full bg-blue-600 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700 transition"
+            className="w-full bg-accent text-accent-foreground font-semibold px-4 py-3 rounded-xl hover:bg-accent/80 transition-all duration-200 hover:shadow-lg hover:scale-105"
           >
             Pay NTT
           </button>
         </div>
       </div>
 
-      <div className="w-full max-w-2xl mt-10">
-        <h2 className="text-2xl font-semibold mb-4">Registered NTTs</h2>
-        <div className="space-y-4">
+      <div className="w-full max-w-2xl">
+        <h2 className="text-2xl font-semibold mb-6 text-center">Registered NTTs</h2>
+        <div className="grid gap-4 md:grid-cols-2">
           {ntts.map((ntt) => (
             <div
               key={ntt.address}
-              className="bg-zinc-800 border border-zinc-700 rounded-lg p-4 shadow-md"
+              className="bg-card border border-border rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-200"
             >
-              <p><strong>Name:</strong> {ntt.name}</p>
-              <p><strong>Wallet:</strong> {ntt.address}</p>
-              <p><strong>Physical Address:</strong> {ntt.physicalAddress}</p>
-              <p><strong>Balance:</strong> {ntt.balance} CTK</p>
+              <h3 className="font-semibold text-accent mb-2">{ntt.name}</h3>
+              <div className="space-y-1 text-sm">
+                <p><span className="font-medium">Wallet:</span> {ntt.address.slice(0, 10)}...</p>
+                <p><span className="font-medium">Physical:</span> {ntt.physicalAddress}</p>
+                <p><span className="font-medium">Balance:</span> {ntt.balance} CTK</p>
+              </div>
             </div>
           ))}
         </div>
