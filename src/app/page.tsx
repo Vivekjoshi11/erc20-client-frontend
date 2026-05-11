@@ -12,9 +12,12 @@ export default function Home() {
         <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
           NTT Token Portal
         </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
           Manage your Non-Tradable Tokens with ease. Access admin controls, user transactions, and NTT operations from one centralized dashboard.
         </p>
+        <Link href="/about" className="inline-block bg-muted text-foreground font-semibold py-2 px-4 rounded-lg hover:bg-muted/80 transition">
+          Learn More About NTTs
+        </Link>
       </div>
 
       <div className="grid gap-6 w-full max-w-2xl md:grid-cols-2">
